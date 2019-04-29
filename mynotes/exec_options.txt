@@ -1,0 +1,174 @@
+=======================================================
+Word - experiments
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/data.tok
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/word-model.enko
+
+python -m nmt.nmt \
+--src=en \
+--tgt=ko \
+--vocab_prefix=${DATA_DIR}/vocab.50k \
+--train_prefix=${DATA_DIR}/train.tok.clean \
+--dev_prefix=${DATA_DIR}/dev.tok.clean \
+--test_prefix=${DATA_DIR}/test.tok.clean \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/opus18_en_ko.json
+
+
+==========================================================
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/data.tok
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/word-model.koen
+
+python -m nmt.nmt \
+--src=ko \
+--tgt=en \
+--vocab_prefix=${DATA_DIR}/vocab.50k \
+--train_prefix=${DATA_DIR}/train.tok.clean \
+--dev_prefix=${DATA_DIR}/dev.tok.clean \
+--test_prefix=${DATA_DIR}/test.tok.clean \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/opus18_ko_en.json
+
+
+=======================================================
+BPE - experiments
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/data.tok
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/bpe16k-model.enko
+
+python -m nmt.nmt \
+--src=en \
+--tgt=ko \
+--vocab_prefix=${DATA_DIR}/vocab.bpe.16000 \
+--train_prefix=${DATA_DIR}/train.tok.clean.bpe.16000 \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.bpe.16000 \
+--test_prefix=${DATA_DIR}/test.tok.clean.bpe.16000 \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/opus18_en_ko.json \
+--subword_option=bpe
+
+
+==========================================================
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/data.tok
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/bpe16k-model.koen
+
+python -m nmt.nmt \
+--src=ko \
+--tgt=en \
+--vocab_prefix=${DATA_DIR}/vocab.bpe.16000 \
+--train_prefix=${DATA_DIR}/train.tok.clean.bpe.16000 \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.bpe.16000 \
+--test_prefix=${DATA_DIR}/test.tok.clean.bpe.16000 \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/opus18_ko_en.json \
+--subword_option=bpe
+
+
+=======================================================
+
+baseline model (en-ko) - bpe16k
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/morph.data.tok
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/morph.bpe16k.enko.base
+
+python -m nmt.nmt \
+--src=en \
+--tgt=ko \
+--vocab_prefix=${DATA_DIR}/vocab.bpe.16000 \
+--train_prefix=${DATA_DIR}/train.tok.clean.bpe.16000 \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.bpe.16000 \
+--test_prefix=${DATA_DIR}/test.tok.clean.bpe.16000 \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/opus18_en_ko.json \
+--subword_option=bpe
+
+
+============================================================
+mix model (en-ko)
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/morph.data.tok.200k
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/mix.morph.bpe16k.200k.enko
+export MIX_DATA_DIR=/home/hkh/data/opensub18-enko/morph.mix.data.tok.200k
+
+python -m nmt.nmt \
+--src=en \
+--tgt=ko \
+--vocab_prefix=${DATA_DIR}/vocab.bpe.16000 \
+--train_prefix=${MIX_DATA_DIR}/mix.train.tok.clean.bpe16k \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.bpe.16000 \
+--test_prefix=${DATA_DIR}/test.tok.clean.bpe.16000 \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/mix.opus18_en_ko.json \
+--subword_option=bpe
+
+----------------------------------------------
+mix model (ko-en)
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/morph.data.tok.200k
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/mix.morph.bpe16k.200k.koen
+export MIX_DATA_DIR=/home/hkh/data/opensub18-enko/morph.mix.data.tok.200k
+
+python -m nmt.nmt \
+--src=ko \
+--tgt=en \
+--vocab_prefix=${DATA_DIR}/vocab.bpe.16000 \
+--train_prefix=${MIX_DATA_DIR}/mix.train.tok.clean.bpe16k \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.bpe.16000 \
+--test_prefix=${DATA_DIR}/test.tok.clean.bpe.16000 \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/mix.opus18_ko_en.json \
+--subword_option=bpe
+
+
+
+Final Model
+
+tensorboard --port 8999 --logdir /home/hkh/data/iwslt18/open-subtitles/tf_models/model_eu2en_subtoken_hkh
+
+-------------------------------
+# Inference
+python -m nmt.nmt \
+--vocab_prefix=${DATA_DIR}/vocab.bpe.16000 \
+--out_dir=${MODEL_DIR} \
+--inference_input_file=/home/hkh/data/wmt16_en_data/train.1m.tok.clean.en \
+--inference_output_file=/home/hkh/data/wmt16_en_data/synthetic.400k.train.1m.tok.clean.ko
+
+
+=======================================================
+
+char model (en-ko)
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/data.char
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/char-model.enko
+
+python -m nmt.nmt \
+--src=en \
+--tgt=ko \
+--vocab_prefix=${DATA_DIR}/vocab.char \
+--train_prefix=${DATA_DIR}/train.tok.clean.char \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.char \
+--test_prefix=${DATA_DIR}/test.tok.clean.char \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/opus18_en_ko.char.json \
+--subword_option=spm
+
+
+=======================================================
+
+char model (ko-en)
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/data.char
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/char-model.koen
+
+python -m nmt.nmt \
+--src=ko \
+--tgt=en \
+--vocab_prefix=${DATA_DIR}/vocab.char \
+--train_prefix=${DATA_DIR}/train.tok.clean.char \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.char \
+--test_prefix=${DATA_DIR}/test.tok.clean.char \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/opus18_ko_en.char.json \
+--subword_option=spm

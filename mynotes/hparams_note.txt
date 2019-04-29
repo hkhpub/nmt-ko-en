@@ -1,0 +1,14 @@
+hparams_iwslt18 폴더의 xxx.json 파일에서 hyper parameters 로딩함
+
+주의할 점
+
+1. 다음 세가지 parameter 는 데이터 크기에 따라 변하기 때문에 실행옵션으로 설정해준다.
+
+    1) num_train_steps
+    2) start_decay_step (보통은 num_train_steps의 1/2 혹은 3/4로 설정)
+    3) decay_steps (start_decay_step 의 1/10으로 설정)
+
+
+2. sentence piece 혹은 BPE를 사용할 경우 json 파일의 bpe_delimiter 를 설정해준다.
+3. 혹은 실행옵션으로 --subword_option 을 추가해도 된다.
+

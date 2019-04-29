@@ -1,0 +1,14 @@
+# 파일 나누는 법
+
+Use:
+    sed -n '1,100p' filename > output.txt
+
+Here, 1 and 100 are the line numbers which you will capture in output.txt.
+
+
+# 파일 합치는 법
+
+    cat train.tok.en dev.tok.en > train_dev.tok.en
+
+# 모든 라인 시작부에 <tag> 추가하는 법
+sed 's/^/<tag> /' /tmp/tst2016.txt > /tmp/sub.txt

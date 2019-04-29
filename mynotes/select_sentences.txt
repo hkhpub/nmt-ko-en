@@ -1,0 +1,31 @@
+export WMT_DIR=/home/hkh/data/wmt16_en_data
+
+# 1. Randomly select sentences
+
+python corpus_sents_selc/randomly_select.py \
+--input1=$WMT_DIR/synthetic.train.tok.clean.bpe.16000.ko \
+--input2=$WMT_DIR/train.tok.clean.bpe.16000.en \
+--output1=$WMT_DIR/synthetic/synthetic.train.tok.clean.ko \
+--output2=$WMT_DIR/synthetic/synthetic.train.tok.clean.bpe.16000.en \
+--size=500000
+
+
+# 2. Select by min, max words count
+
+python corpus_sents_selc/average_len_select.py \
+--input1=$WMT_DIR/synthetic.train.tok.clean.ko \
+--input2=$WMT_DIR/train.tok.clean.bpe.16000.en \
+--output1=$WMT_DIR/len_selc/selc_min7_max15.train.tok.clean.ko \
+--output2=$WMT_DIR/len_selc/selc_min7_max15.train.tok.clean.bpe.16000.en \
+--min_len=7 \
+--max_len=15
+
+
+
+# 3. Merge with parallel corpus
+
+# cat train.tok.en dev.tok.en > train_dev.tok.en
+
+cat ~/data/opensub18-enko/morph.data.tok/train.tok.clean.bpe.16000.en \
+~/data/wmt16_en_data/rand_selc/synthetic.train.tok.clean.bpe.16000.en \
+> ~/data/opensub18-enko/mix_rand_selc/mix.train.tok.clean.bpe.16000.ko

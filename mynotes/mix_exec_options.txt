@@ -1,0 +1,40 @@
+  1403622 /home/hkh/data/opensub18-enko/mix_rand_selc/mix.train.tok.clean.bpe.16000.en
+  1403622 /home/hkh/data/opensub18-enko/mix_rand_selc/mix.train.tok.clean.bpe.16000.ko
+  1403622 /home/hkh/data/opensub18-enko/mix_len_selc/mix.train.tok.clean.bpe.16000.en
+  1403622 /home/hkh/data/opensub18-enko/mix_len_selc/mix.train.tok.clean.bpe.16000.ko
+
+
+mix model (en-ko)
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/morph.data.tok
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/mix.morph.bpe16k.enko.rand
+export MIX_DATA_DIR=/home/hkh/data/opensub18-enko/mix_rand_selc
+
+python -m nmt.nmt \
+--src=en \
+--tgt=ko \
+--vocab_prefix=${DATA_DIR}/vocab.bpe.16000 \
+--train_prefix=${MIX_DATA_DIR}/mix.train.tok.clean.bpe.16000 \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.bpe.16000 \
+--test_prefix=${DATA_DIR}/test.tok.clean.bpe.16000 \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/mix.opus18_en_ko.json \
+--subword_option=bpe
+
+
+mix model (ko-en)
+
+export DATA_DIR=/home/hkh/data/opensub18-enko/morph.data.tok
+export MODEL_DIR=/home/hkh/data/opensub18-enko/nmt_models/mix.morph.bpe16k.koen.rand
+export MIX_DATA_DIR=/home/hkh/data/opensub18-enko/mix_rand_selc
+
+python -m nmt.nmt \
+--src=ko \
+--tgt=en \
+--vocab_prefix=${DATA_DIR}/vocab.bpe.16000 \
+--train_prefix=${MIX_DATA_DIR}/mix.train.tok.clean.bpe.16000 \
+--dev_prefix=${DATA_DIR}/dev.tok.clean.bpe.16000 \
+--test_prefix=${DATA_DIR}/test.tok.clean.bpe.16000 \
+--out_dir=${MODEL_DIR} \
+--hparams_path=hparams/mix.opus18_ko_en.json \
+--subword_option=bpe

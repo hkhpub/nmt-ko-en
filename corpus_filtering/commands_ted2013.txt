@@ -1,0 +1,130 @@
+python langid_filtering.py \
+--input1=/home/hkh/data/ted-data/train.tok.clean.en \
+--input2=/home/hkh/data/ted-data/syn.train.tok.clean.ko \
+--output=/home/hkh/data/ted-data/langid_filtered/langid_filtered.txt
+
+python langid_selection.py \
+--input1=/home/hkh/data/ted-data/train.tok.clean.en \
+--input2=/home/hkh/data/ted-data/syn.train.tok.clean.ko \
+--filtered=/home/hkh/data/ted-data/langid_filtered/langid_filtered.txt \
+--output1=/home/hkh/data/ted-data/langid_filtered/langid.train.tok.clean.en \
+--output2=/home/hkh/data/ted-data/langid_filtered/langid.syn.train.tok.clean.ko
+
+
+python embedding_filtering.py \
+--input1=/home/hkh/data/ted-data/langid_filtered/langid.train.tok.clean.en \
+--input2=/home/hkh/data/ted-data/langid_filtered/langid.syn.train.tok.clean.ko \
+--output=/home/hkh/data/ted-data/emb_ranked/pair_similarities.txt
+
+python ranking_selection.py \
+--input1=/home/hkh/data/ted-data/langid_filtered/langid.train.tok.clean.en \
+--input2=/home/hkh/data/ted-data/langid_filtered/langid.syn.train.tok.clean.ko \
+--score=/home/hkh/data/ted-data/emb_ranked/pair_similarities.txt \
+--output1=/home/hkh/data/ted-data/emb_ranked/emb.langid.train.tok.clean.en \
+--output2=/home/hkh/data/ted-data/emb_ranked/emb.langid.syn.train.tok.clean.ko \
+--score_out=/home/hkh/data/ted-data/emb_ranked/ranked_pair_similarities.txt
+
+
+
+python langid_selection.py \
+--input1=/home/hkh/data/opensub18/opensub.en-ko.tok.en \
+--input2=/home/hkh/data/opensub18/opensub.en-ko.tok.ko \
+--filtered=/home/hkh/data/opensub18/filtered/langid_filtered.txt \
+--output1=/home/hkh/data/opensub18/filtered/filtered.opensub.en-ko.tok.en \
+--output2=/home/hkh/data/opensub18/filtered/filtered.opensub.en-ko.tok.ko
+
+
+python remove_duplicates.py \
+--input1=/home/hkh/data/ted-data/emb_ranked/period.emb.langid.train.tok.clean.en \
+--input2=/home/hkh/data/ted-data/emb_ranked/period.emb.langid.syn.train.tok.clean.ko \
+--output1=/home/hkh/data/ted-data/emb_ranked/nodup.period.emb.langid.train.tok.clean.en \
+--output2=/home/hkh/data/ted-data/emb_ranked/nodup.period.emb.langid.syn.train.tok.clean.ko
+
+
+# replace numbers to prevent bias towards number
+cat syn.train.1m.tok.clean.ko | sed -E 's/[0-9]+/###/g' > mask.syn.train.1m.tok.clean.ko
+
+
+
+python period_selection.py \
+--input1=/home/hkh/data/ted-data/langid_filtered/langid.train.tok.clean.en \
+--input2=/home/hkh/data/ted-data/langid_filtered/langid.syn.train.tok.clean.ko \
+--output1=/home/hkh/data/ted-data/langid_filtered/period.langid.train.tok.clean.en \
+--output2=/home/hkh/data/ted-data/langid_filtered/period.langid.syn.train.tok.clean.ko \
+--trash=/home/hkh/data/ted-data/langid_filtered/period_trash.txt
+
+python period_selection.py \
+--input1=/home/hkh/data/ted-data/emb_ranked/emb.langid.train.tok.clean.en \
+--input2=/home/hkh/data/ted-data/emb_ranked/emb.langid.syn.train.tok.clean.ko \
+--output1=/home/hkh/data/ted-data/emb_ranked/period.emb.langid.train.tok.clean.en \
+--output2=/home/hkh/data/ted-data/emb_ranked/period.emb.langid.syn.train.tok.clean.ko \
+--trash=/home/hkh/data/ted-data/emb_ranked/period_trash.txt
+
+#
+# bi-lingual embedding ranking
+#
+
+python sent_vectors.py -gpu 1 -batch_size 512 \
+-model /home/hkh/data/ted2013/opennmt.data.bilingual.ko-en/models/data.bilingual.ko-en_step_15000.pt \
+-src /home/hkh/data/ted-data/emb_ranked/period.emb.langid.syn.train.1m.tok.clean.bpe32k.ko \
+-output /home/hkh/data/ted-data/encoder_ranked/sent_vectors.ko
+
+
+python sent_vectors.py -gpu 0 -batch_size 512 \
+-model /home/hkh/data/ted2013/opennmt.data.bilingual.ko-en/models/data.bilingual.ko-en_step_15000.pt \
+-src /home/hkh/data/ted-data/emb_ranked/period.emb.langid.train.1m.tok.clean.bpe32k.en \
+-output /home/hkh/data/ted-data/encoder_ranked/sent_vectors.en
+
+python ranking_selection.py \
+--input1=/home/hkh/data/ted-data/train.1m.tok.clean.bpe32k.en \
+--input2=/home/hkh/data/ted-data/syn.train.1m.tok.clean.bpe32k.ko \
+--score=/home/hkh/data/ted-data/encoder_ranked/cosine_scores.txt \
+--output1=/home/hkh/data/ted-data/encoder_ranked/ranked.train.1m.tok.clean.bpe32k.en \
+--output2=/home/hkh/data/ted-data/encoder_ranked/ranked.syn.train.1m.tok.clean.bpe32k.ko
+
+
+python length_filtering.py \
+--input1=/home/hkh/data/ted-data/emb_ranked/nodup.emb.period.langid.train.1m.tok.clean.bpe32k.en \
+--input2=/home/hkh/data/ted-data/emb_ranked/nodup.emb.period.langid.syn.train.1m.tok.clean.bpe32k.ko \
+--output1=/home/hkh/data/ted-data/emb_ranked/emb.period.langid.train.0.4m.len.en \
+--output2=/home/hkh/data/ted-data/emb_ranked/emb.period.langid.syn.train.0.4m.len.ko \
+--mean_len=18 --target_size=400000
+
+
+python remove_duplicates_target.py \
+--input1=/home/hkh/data/ted-data/emb_ranked/emb.period.langid.train.0.4m.tok.clean.bpe32k.en \
+--input2=/home/hkh/data/ted-data/emb_ranked/emb.period.langid.syn.train.0.4m.tok.clean.bpe32k.ko \
+--output1=/home/hkh/data/ted-data/emb_ranked/nodup.emb.period.langid.train.0.4m.tok.clean.bpe32k.en \
+--output2=/home/hkh/data/ted-data/emb_ranked/nodup.emb.period.langid.syn.train.0.4m.tok.clean.bpe32k.ko
+
+
+python remove_duplicates_target.py \
+--input1=/home/hkh/data/ted-data/emb_ranked/emb.period.langid.train.1m.tok.clean.bpe32k.en \
+--input2=/home/hkh/data/ted-data/emb_ranked/emb.period.langid.syn.train.1m.tok.clean.bpe32k.ko \
+--output1=/home/hkh/data/ted-data/emb_ranked/nodup.emb.period.langid.train.1m.tok.clean.bpe32k.en \
+--output2=/home/hkh/data/ted-data/emb_ranked/nodup.emb.period.langid.syn.train.1m.tok.clean.bpe32k.ko
+
+python embedding_filtering.py \
+--input1=/home/hkh/data/wmt16_en_data/train.2m.tok.clean.en \
+--input2=/home/hkh/data/wmt16_en_data/train.2m.tok.clean.ko \
+--output=/home/hkh/data/wmt16_en_data/emb_ranked/pair_similarities.txt
+
+python ranking_selection.py \
+--input1=/home/hkh/data/wmt16_en_data/train.2m.tok.clean.en \
+--input2=/home/hkh/data/wmt16_en_data/train.2m.tok.clean.ko \
+--score=/home/hkh/data/wmt16_en_data/emb_ranked/pair_similarities.txt \
+--output1=/home/hkh/data/wmt16_en_data/emb_ranked/emb_thr0.5.train.2m.tok.clean.en \
+--output2=/home/hkh/data/wmt16_en_data/emb_ranked/emb_thr0.5.train.2m.tok.clean.ko \
+--score_out=/home/hkh/data/wmt16_en_data/emb_ranked/ranked_pair_similarities.txt \
+--threshold=0.5
+
+
+python ranking_selection.py \
+--input1=/home/hkh/data/wmt16_en_data/train.2m.tok.clean.en \
+--input2=/home/hkh/data/wmt16_en_data/train.2m.tok.clean.ko \
+--score=/home/hkh/data/wmt16_en_data/emb_ranked/pair_similarities.txt \
+--output1=/home/hkh/data/wmt16_en_data/emb_ranked/emb_thr0.3.train.2m.tok.clean.en \
+--output2=/home/hkh/data/wmt16_en_data/emb_ranked/emb_thr0.3.train.2m.tok.clean.ko \
+--score_out=/home/hkh/data/wmt16_en_data/emb_ranked/ranked_pair_similarities.txt \
+--threshold=0.3
+

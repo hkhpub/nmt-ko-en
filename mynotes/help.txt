@@ -1,0 +1,44 @@
+# To use awk to convert a Windows file to Unix, enter:
+
+$> awk '{ sub("\r$", ""); print }' winfile.txt > unixfile.txt
+
+# To convert a Unix file to Windows, enter:
+
+$> awk 'sub("$", "\r")' unixfile.txt > winfile.txt
+
+# rename a group of files in ubuntu
+
+$> rename "s/SEARCH/REPLACE/g"  *
+
+
+
+# windows shell to ubuntu shell
+
+$> sed -i -e 's/\r$//' preprocess.sh
+
+
+# starting a tensorboard server
+
+$> tensorboard --port 8000 --logdir /tmp/nmt_model/
+
+
+# parsing documents using stanford lexparser
+
+$> ./lexparser-en.sh /hdd/data/iwslt15-en-vi/clean/train.en > /hdd/data/iwslt15-en-vi/parse/train.parse.en
+
+
+# stanford chinese segmenter
+
+$> ./segment.sh -3 ctb <input_path> UTF8 0 > <output_path>
+
+# move n lines from file A to file B
+
+$> head -1000 file.txt > first100lines.txt
+$> tail --lines=+1001 file.txt > restoffile.txt
+
+
+$>
+spm_train --input=/hdd/data/open-subtitles2018-en-ko/open-subtitles.ko \
+--model_prefix=unigram_opensubtitles \
+--vocab_size=16000 \
+--model_type=unigram
